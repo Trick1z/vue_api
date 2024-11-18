@@ -45,20 +45,22 @@ app.add_middleware(
 def query_get(order: String):
 
     cnx = get_DB()
-    cursor = cnx.cursor()
+    cursor = cnx.cursor(dictionary=True)
     cursor.execute(order)
     rows = cursor.fetchall()
     cursor.close()
     cnx.close()
+
     if not rows:
-        return {"message": 404, "data": None}
+        return None
+        # return {"message": 404, "data": None}
     else:
         return rows
 
 
 def query_post(order: String, data: tuple, res: str):
     cnx = get_DB()
-    cursor = cnx.cursor()
+    cursor = cnx.cursor(dictionary=True)
     cursor.execute(order, data)
 
     match res:
@@ -93,78 +95,16 @@ def query_put(order: String, data: tuple):
 
 # API HERE GOES HERE
 # get
-    # category..
-@app.get("/get.category")
-def get_category():
 
+
+@app.get('/get.{table}')
+def get_data(table: str):
     try:
-        rows = query_get(
-            "SELECT * FROM category WHERE DEL_FRAG = 'N' and RECORD_STATUS = 'A'")
-
-        lst = []
-        for row in rows:
-            lst.append(
-                {
-                    "CATEGORY_ID": row[0],
-                    "CATEGORY_NAME": row[1],
-                    "CATEGORY_DESCRIPTION": row[2]
-                }
-            )
-        return {"message": 200, "data": lst}
-    except:
-        return {"message": 404}
-
-    # status
-
-
-@app.get('/get.status')
-def get_status():
-
-    try:
-        rows = query_get(
-            "SELECT * FROM status WHERE DEL_FRAG = 'N' and RECORD_STATUS = 'A'")
-        lst = []
-        for row in rows:
-            lst.append({
-                "STATUS_ID": row[0],
-                "STATUS_NAME": row[1],
-                "STATUS_DESCRIPTION": row[2],
-                "CREATE_DATE": row[5],
-                "UPDATE_DATE": row[6],
-            })
-        return {"message": 200, "data": lst}
-    except:
-
-        return {"message": 404, "data": lst}
-
-    # product
-
-
-@app.get('/get.product')
-def get_products():
-    try:
-        rows = query_get(
-            "SELECT * FROM product WHERE DEL_FRAG = 'N' and RECORD_STATUS = 'A'")
-        lst = []
-        for row in rows:
-            lst.append({
-                "PRODUCT_ID": row[0],
-                "PRODUCT_NAME": row[1],
-                "PRODUCT_DESCRIPTION": row[2],
-                "PRODUCT_DOP": row[3],
-                "PRODUCT_PRICE": row[4],
-                "PRODUCT_SERIALNUMBER": row[5],
-                "PRODUCT_EQUIPMENTNUMBER": row[6],
-                "PRODUCT_BAND": row[7],
-                "CATEGORY_ID": row[8],
-                "STATUS_ID": row[9],
-            })
-
-        return {"message": 200, "data": lst}
+        res = query_get(
+            f"SELECT * FROM {table} WHERE DEL_FRAG = 'N' and RECORD_STATUS ='A'")
+        return res
     except Exception as err:
-        return {"message": err, "status": "somthing went wrong!!"}
-
-    # product by id
+        return {"message": err, "status": "Something Went Wrong!"}
 
 
 @app.get('/get.product/{id}')
@@ -172,22 +112,7 @@ def get_products_id(id: int):
     try:
         rows = query_get(
             f"SELECT * FROM product WHERE PRODUCT_ID = {id} and DEL_FRAG = 'N' and RECORD_STATUS = 'A'")
-        lst = {}
-        for row in rows:
-            lst = {
-                "PRODUCT_ID": row[0],
-                "PRODUCT_NAME": row[1],
-                "PRODUCT_DESCRIPTION": row[2],
-                "PRODUCT_DOP": row[3],
-                "PRODUCT_PRICE": row[4],
-                "PRODUCT_SERIALNUMBER": row[5],
-                "PRODUCT_EQUIPMENTNUMBER": row[6],
-                "PRODUCT_BAND": row[7],
-                "CATEGORY_ID": row[8],
-                "STATUS_ID": row[9],
-            }
-
-        return {"message": 200, "data": lst}
+        return {"message": 200, "data": rows}
     except Exception as err:
         return {"message": err, "status": "somthing went wrong!!"}
 
@@ -199,21 +124,7 @@ def get_products_category_id(id: int):
     try:
         rows = query_get(
             f"SELECT * FROM product WHERE CATEGORY_ID = {id} and DEL_FRAG = 'N' and RECORD_STATUS = 'A'")
-        lst = []
-        for row in rows:
-            lst.append({
-                "PRODUCT_ID": row[0],
-                "PRODUCT_NAME": row[1],
-                "PRODUCT_DESCRIPTION": row[2],
-                "PRODUCT_DOP": row[3],
-                "PRODUCT_PRICE": row[4],
-                "PRODUCT_SERIALNUMBER": row[5],
-                "PRODUCT_EQUIPMENTNUMBER": row[6],
-                "PRODUCT_BAND": row[7],
-                "CATEGORY_ID": row[8],
-                "STATUS_ID": row[9], })
-
-        return {"message": 200, "data": lst}
+        return {"message": 200, "data": rows}
     except Exception as err:
         return {"message": err, "status": "somthing went wrong!!"}
     # product by category and status 'ว่าง'
@@ -224,21 +135,8 @@ def get_products_category_status_id(id: int):
     try:
         rows = query_get(
             f"SELECT * FROM product WHERE CATEGORY_ID = {id} and STATUS_ID = 6 and DEL_FRAG = 'N' and RECORD_STATUS = 'A' and on_hold='N'")
-        lst = []
-        for row in rows:
-            lst.append({
-                "PRODUCT_ID": row[0],
-                "PRODUCT_NAME": row[1],
-                "PRODUCT_DESCRIPTION": row[2],
-                "PRODUCT_DOP": row[3],
-                "PRODUCT_PRICE": row[4],
-                "PRODUCT_SERIALNUMBER": row[5],
-                "PRODUCT_EQUIPMENTNUMBER": row[6],
-                "PRODUCT_BAND": row[7],
-                "CATEGORY_ID": row[8],
-                "STATUS_ID": row[9], })
 
-        return {"message": 200, "data": lst}
+        return {"message": 200, "data": rows}
     except Exception as err:
         return {"message": err, "status": "somthing went wrong!!"}
 
@@ -250,21 +148,8 @@ def get_products_category_id(id: int):
     try:
         rows = query_get(
             f"SELECT * FROM product WHERE STATUS_ID = {id} and DEL_FRAG = 'N' and RECORD_STATUS = 'A' and on_hold='N'")
-        lst = []
-        for row in rows:
-            lst.append({
-                "PRODUCT_ID": row[0],
-                "PRODUCT_NAME": row[1],
-                "PRODUCT_DESCRIPTION": row[2],
-                "PRODUCT_DOP": row[3],
-                "PRODUCT_PRICE": row[4],
-                "PRODUCT_SERIALNUMBER": row[5],
-                "PRODUCT_EQUIPMENTNUMBER": row[6],
-                "PRODUCT_BAND": row[7],
-                "CATEGORY_ID": row[8],
-                "STATUS_ID": row[9], })
 
-        return {"message": 200, "data": lst}
+        return {"message": 200, "data": rows}
     except Exception as err:
         return {"message": err, "status": "somthing went wrong!!"}
     # img
@@ -275,11 +160,7 @@ def get_img(id: int):
     try:
         rows = query_get(
             f"SELECT * FROM img WHERE PRODUCT_ID = {id} and DEL_FRAG = 'N' and RECORD_STATUS = 'A' ")
-        lst = {}
-
-        for row in rows:
-            lst = {"IMG_NAME": row[1]}
-        return {"message": 200, "data": lst}
+        return {"message": 200, "data": rows}
     except Exception as err:
         return {"message": err, "status": "something went wrong !!"}
 
@@ -291,18 +172,7 @@ def get_student():
     try:
         res = query_get(
             "SELECT * FROM student WHERE DEL_FRAG = 'N' and RECORD_STATUS = 'A'")
-        lst = []
-
-        for row in res:
-            lst.append({
-                "STUDENT_ID": row[0],
-                "STUDENT_NAME": row[1],
-                "STUDENT_CODE": row[2],
-                "STUDENT_YEAR": row[3],
-                "STUDENT_FACULTY": row[4],
-                "STUDENT_MAJOR": row[5]
-            })
-        return {"message": 200, "data": lst}
+        return {"message": 200, "data": res}
     except Exception as err:
         return {"message": err, "status": "something went wrong !!"}
 
@@ -314,21 +184,10 @@ def get_student(code: str):
     try:
         res = query_get(
             f"SELECT * FROM student WHERE STUDENT_CODE = '{code}' and DEL_FRAG = 'N' and RECORD_STATUS = 'A'")
-        lst = {}
 
-        # if res["data"] == None:
-        #     return "noneeeee"
-
-        for row in res:
-            lst = {
-                "STUDENT_ID": row[0],
-                "STUDENT_NAME": row[1],
-                "STUDENT_CODE": row[2],
-                "STUDENT_YEAR": row[3],
-                "STUDENT_FACULTY": row[4],
-                "STUDENT_MAJOR": row[5]
-            }
-        return {"message": 200, "data": lst}
+        if not res:
+            return err
+        return {"message": 200, "data": res}
     except Exception as err:
         return {"message": err, "status": "something went wrong !!"}
 
@@ -340,16 +199,8 @@ def get_borrow(status: str):
     try:
         res = query_get(
             f"SELECT * FROM borrow WHERE DEL_FRAG = '{status}' and RECORD_STATUS = 'A'")
-        lst = []
-        for row in res:
-            lst.append({
-                "LIST_ID": row[0],
-                "PRODUCT_ID": row[1],
-                "STUDENT_ID": row[2],
-                "CREATE_DATE": row[5],
-                "UPDATE_DATE": row[6],
-            })
-        return {"message": 200, "data": lst}
+
+        return {"message": 200, "data": res}
     except Exception as err:
         return {"message": err, "status": "something went wrong !!"}
 
@@ -367,18 +218,13 @@ class usernames(BaseModel):
 async def get_account(data: usernames):
     rows = query_post(
         "SELECT * FROM account WHERE USERNAME = %s and PASSWORD = %s", (data.username, data.password), 'login')
-    lst = []
+
     if not rows["data"]:
         # raise HTTPException(status_code=204, status = "Incorrect username or password")
         return {"message": 204, "status": "Incorrect username or password"}
     else:
-        for row in rows["data"]:
-            lst = {
-                "USER_USER": row[1],
-                "USER_PW": row[2],
-                "USER_NAME": row[3]
-            }
-        return {"message": 200, "status": "Success", "list": lst}
+
+        return {"message": 200, "status": "Success", "data": rows["data"]}
 
     # category
 
@@ -466,7 +312,7 @@ def add_borrow(data: addborrow):
         try:
             # res = query_post("INSERT INTO borrow (STUDENT_ID ,PRODUCT_ID) VALUES (%s,%s)",(s_id,p_id,),'update')
             res = query_post(
-                "INSERT INTO borrow (PRODUCT_ID,STUDENT_ID,CREATE_DATE) VALUES (%s,%s,%s)", (p_id, s_id,create_form,), 'id')
+                "INSERT INTO borrow (PRODUCT_ID,STUDENT_ID,CREATE_DATE) VALUES (%s,%s,%s)", (p_id, s_id, create_form,), 'id')
             query_put(
                 "UPDATE product SET STATUS_ID = 7 , on_hold = 'N' WHERE PRODUCT_ID = %s", (p_id,))
             query_put()
@@ -584,26 +430,93 @@ async def put_category_delfrag(id: int, table: str):
         return {"message": err, "Status": "something went wrong!!"}
 # count
     # borrow
+
+
 @app.get('/count.borrow')
 def get_count_borrow():
 
     try:
         res = query_get("""SELECT 
-        COUNT(*) AS count_all,
-        COUNT(CASE WHEN DEL_FRAG = 'Y' THEN 1 END) AS count_borrow,
-        COUNT(CASE WHEN DEL_FRAG = 'N' THEN 1 END) AS count_not_borrow
+        COUNT(*) AS ทั้งหมด,
+        COUNT(CASE WHEN DEL_FRAG = 'Y' THEN 1 END) AS คืนแล้ว,
+        COUNT(CASE WHEN DEL_FRAG = 'N' THEN 1 END) AS ยังไม่คืน
         FROM borrow;""")
 
-        lst = []
-        for row in res:
-            lst = [
-                {"key": "ทั้งหมด", "value": row[0]},
-                {"key": "คืนแล้ว", "value": row[1]},
-                {"key": "ยังไม่คืน", "value": row[2]}
-            ]
-
-        return {"message": 200, "data": lst}
+        return {"message": 200, "data": res}
 
     except Exception as err:
 
         return {"message": err, "status": "somthing went wrong!!"}
+
+ # category..
+# @app.get("/get.category")
+# def get_category():
+
+#     try:
+#         rows = query_get(
+#             "SELECT * FROM category WHERE DEL_FRAG = 'N' and RECORD_STATUS = 'A'")
+
+#         lst = []
+#         for row in rows:
+#             lst.append(
+#                 {
+#                     "CATEGORY_ID": row[0],
+#                     "CATEGORY_NAME": row[1],
+#                     "CATEGORY_DESCRIPTION": row[2]
+#                 }
+#             )
+#         return {"message": 200, "data": lst}
+#     except:
+#         return {"message": 404}
+
+#     # status
+
+
+# @app.get('/get.status')
+# def get_status():
+
+#     try:
+#         rows = query_get(
+#             "SELECT * FROM status WHERE DEL_FRAG = 'N' and RECORD_STATUS = 'A'")
+#         lst = []
+#         for row in rows:
+#             lst.append({
+#                 "STATUS_ID": row[0],
+#                 "STATUS_NAME": row[1],
+#                 "STATUS_DESCRIPTION": row[2],
+#                 "CREATE_DATE": row[5],
+#                 "UPDATE_DATE": row[6],
+#             })
+#         return {"message": 200, "data": lst}
+#     except:
+
+#         return {"message": 404, "data": lst}
+
+#     # product
+
+
+# @app.get('/get.product')
+# def get_products():
+#     try:
+#         rows = query_get(
+#             "SELECT * FROM product WHERE DEL_FRAG = 'N' and RECORD_STATUS = 'A'")
+#         lst = []
+#         for row in rows:
+#             lst.append({
+#                 "PRODUCT_ID": row[0],
+#                 "PRODUCT_NAME": row[1],
+#                 "PRODUCT_DESCRIPTION": row[2],
+#                 "PRODUCT_DOP": row[3],
+#                 "PRODUCT_PRICE": row[4],
+#                 "PRODUCT_SERIALNUMBER": row[5],
+#                 "PRODUCT_EQUIPMENTNUMBER": row[6],
+#                 "PRODUCT_BAND": row[7],
+#                 "CATEGORY_ID": row[8],
+#                 "STATUS_ID": row[9],
+#             })
+
+#         return {"message": 200, "data": lst}
+#     except Exception as err:
+#         return {"message": err, "status": "somthing went wrong!!"}
+
+#     # product by id
