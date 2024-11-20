@@ -307,16 +307,21 @@ def add_borrow(data: addborrow):
     create_form = datetime.now()
     res_arr = []
     s_id = data.STUDENT_ID
-    for product in range(len(data.PRODUCT_INFO)):
-        p_id = data.PRODUCT_INFO[product].PRODUCT_ID
+
+    for product in data.PRODUCT_INFO:
+        p_id = product.PRODUCT_ID
+        
+        
         try:
             # res = query_post("INSERT INTO borrow (STUDENT_ID ,PRODUCT_ID) VALUES (%s,%s)",(s_id,p_id,),'update')
             res = query_post(
                 "INSERT INTO borrow (PRODUCT_ID,STUDENT_ID,CREATE_DATE) VALUES (%s,%s,%s)", (p_id, s_id, create_form,), 'id')
-            query_put(
+            res_2 = query_put(
                 "UPDATE product SET STATUS_ID = 7 , on_hold = 'N' WHERE PRODUCT_ID = %s", (p_id,))
-            query_put()
             res_arr.append(res["ID"])
+
+            # return {"message": 200, "status": res_arr}
+
         except Exception as err:
             return {"message": err, "status": "somthing went wrong"}
 
@@ -412,7 +417,8 @@ def put_borrow_back(data: borrowBack):
 @app.put('/put.onHold.Product.{onHold}/{id}')
 def on_hold(id: int, onHold: str):
     try:
-        res = query_put(f"UPDATE product SET on_hold = '{onHold}' WHERE PRODUCT_ID = %s", (id,))
+        res = query_put(f"UPDATE product SET on_hold = '{
+                        onHold}' WHERE PRODUCT_ID = %s", (id,))
         return {"message": 200, "status": res}
     except Exception as err:
         return {"message": err, "status": "somthing went wrong!!"}
@@ -431,15 +437,16 @@ async def put_category_delfrag(id: int, table: str):
     # on hold
 
 
-@app.put('/put.on_hold')
-def clear_onHold():
+@app.put('/put.on_hold/{state}')
+def clear_onHold(state: str):
     try:
-       res = query_put("UPDATE product SET on_hold ='N' WHERE on_hold = %s",('Y',))
-       return {"message": 200 , "status" : "on hold has change!"}
+        res = query_put(
+            "UPDATE product SET on_hold ='N' WHERE on_hold = %s", (state,))
+        return {"message": 200, "status": "on hold has change!"}
     except Exception as err:
-       return {"message" :err ,"status":"somthing went worng !"}
-        
-        
+        return {"message": err, "status": "somthing went worng !"}
+
+
 # count
     # borrow
 
