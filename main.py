@@ -412,8 +412,7 @@ def put_borrow_back(data: borrowBack):
 @app.put('/put.onHold.Product.{onHold}/{id}')
 def on_hold(id: int, onHold: str):
     try:
-        res = query_put(f"UPDATE product SET on_hold = '{
-                        onHold}' WHERE PRODUCT_ID = %s", (id,))
+        res = query_put(f"UPDATE product SET on_hold = '{onHold}' WHERE PRODUCT_ID = %s", (id,))
         return {"message": 200, "status": res}
     except Exception as err:
         return {"message": err, "status": "somthing went wrong!!"}
@@ -428,6 +427,19 @@ async def put_category_delfrag(id: int, table: str):
         return res
     except Exception as err:
         return {"message": err, "Status": "something went wrong!!"}
+
+    # on hold
+
+
+@app.put('/put.on_hold')
+def clear_onHold():
+    try:
+       res = query_put("UPDATE product SET on_hold ='N' WHERE on_hold = %s",('Y',))
+       return {"message": 200 , "status" : "on hold has change!"}
+    except Exception as err:
+       return {"message" :err ,"status":"somthing went worng !"}
+        
+        
 # count
     # borrow
 
