@@ -23,10 +23,16 @@ load_dotenv()
 
 # get DB
 def get_DB():
+    # connector = mysql.connector.connect(
+    #     host=os.getenv("MYSQL_HOST"),
+    #     user=os.getenv("MYSQL_username"),
+    #     database=os.getenv("MYSQL_DATABASE"),
+    # )
     connector = mysql.connector.connect(
-        host=os.getenv("MYSQL_HOST"),
-        user=os.getenv("MYSQL_username"),
-        database=os.getenv("MYSQL_DATABASE"),
+        host='blista7kyg5hyq8lrlyp-mysql.services.clever-cloud.com',
+        user='urgnzyqi63dc81zs',
+        password='bgMpfvaqJi9qBRXwZejS',
+        database='blista7kyg5hyq8lrlyp'
     )
 
     return connector
@@ -40,6 +46,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],  # Angular's dev server runs on port 4200
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 
 def query_get(order: String):
@@ -310,8 +323,7 @@ def add_borrow(data: addborrow):
 
     for product in data.PRODUCT_INFO:
         p_id = product.PRODUCT_ID
-        
-        
+
         try:
             # res = query_post("INSERT INTO borrow (STUDENT_ID ,PRODUCT_ID) VALUES (%s,%s)",(s_id,p_id,),'update')
             res = query_post(
@@ -417,7 +429,8 @@ def put_borrow_back(data: borrowBack):
 @app.put('/put.onHold.Product.{onHold}/{id}')
 def on_hold(id: int, onHold: str):
     try:
-        res = query_put(f"UPDATE product SET on_hold = '{onHold}' WHERE PRODUCT_ID = %s", (id,))
+        res = query_put(f"UPDATE product SET on_hold = '{
+                        onHold}' WHERE PRODUCT_ID = %s", (id,))
         return {"message": 200, "status": res}
     except Exception as err:
         return {"message": err, "status": "somthing went wrong!!"}
