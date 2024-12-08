@@ -1,2 +1,5 @@
-.env
-.bat
+/__pycache__
+/myenv
+*.env
+0.text
+*.bat
