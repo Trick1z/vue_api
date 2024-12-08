@@ -417,8 +417,7 @@ def put_borrow_back(data: borrowBack):
 @app.put('/put.onHold.Product.{onHold}/{id}')
 def on_hold(id: int, onHold: str):
     try:
-        res = query_put(f"UPDATE product SET on_hold = '{
-                        onHold}' WHERE PRODUCT_ID = %s", (id,))
+        res = query_put(f"UPDATE product SET on_hold = '{onHold}' WHERE PRODUCT_ID = %s", (id,))
         return {"message": 200, "status": res}
     except Exception as err:
         return {"message": err, "status": "somthing went wrong!!"}
