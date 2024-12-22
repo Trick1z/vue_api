@@ -11,6 +11,7 @@ pip install sqlalchemy
 pip install fastapi
 pip install "fastapi[standard]"
 pip install python-dotenv
+pip install pydantic
 
 #from pydantic import BaseModel
 
