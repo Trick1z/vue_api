@@ -29,10 +29,9 @@ def get_DB():
     #     database=os.getenv("MYSQL_DATABASE"),
     # )
     connector = mysql.connector.connect(
-        host='blista7kyg5hyq8lrlyp-mysql.services.clever-cloud.com',
-        user='urgnzyqi63dc81zs',
-        password='bgMpfvaqJi9qBRXwZejS',
-        database='blista7kyg5hyq8lrlyp'
+        host='localhost',
+        user='root',
+        database='mydb'
     )
 
     return connector
