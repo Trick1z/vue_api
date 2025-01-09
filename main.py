@@ -310,8 +310,8 @@
 
 #     for product in data.PRODUCT_INFO:
 #         p_id = product.PRODUCT_ID
-        
-        
+
+
 #         try:
 #             # res = query_post("INSERT INTO borrow (STUDENT_ID ,PRODUCT_ID) VALUES (%s,%s)",(s_id,p_id,),'update')
 #             res = query_post(
@@ -454,7 +454,7 @@
 # def get_count_borrow():
 
 #     try:
-#         res = query_get("""SELECT 
+#         res = query_get("""SELECT
 #         COUNT(*) AS ทั้งหมด,
 #         COUNT(CASE WHEN DEL_FRAG = 'Y' THEN 1 END) AS คืนแล้ว,
 #         COUNT(CASE WHEN DEL_FRAG = 'N' THEN 1 END) AS ยังไม่คืน
@@ -469,14 +469,14 @@
 
 from typing import Union
 from typing import List, Optional
-from fastapi import FastAPI, HTTPException, Depends, File, Response, status ,UploadFile
+from fastapi import FastAPI, HTTPException, Depends, File, Response, status, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 import pandas as pd
-import mysql.connector 
+import mysql.connector
 from mysql.connector import Error
 from pydantic import BaseModel
 from datetime import datetime
@@ -901,7 +901,8 @@ def put_borrow_back(data: borrowBack):
 @app.put('/put.onHold.Product.{onHold}/{id}')
 def on_hold(id: int, onHold: str):
     try:
-        res = query_put(f"UPDATE product SET on_hold = '{onHold}' WHERE PRODUCT_ID = %s", (id,))
+        res = query_put(f"UPDATE product SET on_hold = '{
+                        onHold}' WHERE PRODUCT_ID = %s", (id,))
         return {"message": 200, "status": res}
     except Exception as err:
         return {"message": err, "status": "somthing went wrong!!"}
@@ -956,10 +957,11 @@ def get_count_product():
 
     try:
         res = query_get("""SELECT 
-        COUNT(*) AS ทั้งหมด,
-        COUNT(CASE WHEN STATUS_ID = 6 THEN 1 END) AS ว่าง,
-        COUNT(CASE WHEN STATUS_ID = 7 THEN 1 END) AS ถูกยืม
-        FROM product;""")
+    COUNT(CASE WHEN DEL_FRAG = 'N' THEN 1 END) AS ทั้งหมด,
+    COUNT(CASE WHEN STATUS_ID = 6 AND DEL_FRAG = 'N' THEN 1 END) AS ว่าง,
+    COUNT(CASE WHEN STATUS_ID = 7 AND DEL_FRAG = 'N' THEN 1 END) AS ถูกยืม
+FROM product;
+""")
 
         return {"message": 200, "data": res}
 
@@ -992,43 +994,43 @@ class editStudent(BaseModel):
 @app.put('/put.student')
 def put_studentInfo(data: editStudent):
     try:
-        res = query_put("UPDATE student SET  STUDENT_NAME = %s , STUDENT_CODE = %s, STUDENT_MAJOR = %s, STUDENT_FACULTY = %s WHERE STUDENT_ID = %s",(data.STUDENT_NAME, data.STUDENT_CODE, data.STUDENT_MAJOR,data.STUDENT_FACULTY,data.STUDENT_ID,))
-        return {"msg" : "student info has change" , "status" : 200}
+        res = query_put("UPDATE student SET  STUDENT_NAME = %s , STUDENT_CODE = %s, STUDENT_MAJOR = %s, STUDENT_FACULTY = %s WHERE STUDENT_ID = %s",
+                        (data.STUDENT_NAME, data.STUDENT_CODE, data.STUDENT_MAJOR, data.STUDENT_FACULTY, data.STUDENT_ID,))
+        return {"msg": "student info has change", "status": 200}
     except Exception as err:
         return {"message": err, "status": "somthing went wrong!!"}
-   
+
 
 class CSVFile(BaseModel):
     file: str  # Base64-encoded file content
-        
+
+
 @app.post("/upload-csv")
 async def upload_csv(data: CSVFile):
-    
+
     try:
-        base64_str = data.file.split(",")[1] 
+        base64_str = data.file.split(",")[1]
         file_bytes = base64.b64decode(base64_str)
         file_like = io.BytesIO(file_bytes)
         encodings = ['utf-8', 'ISO-8859-1', 'latin1']
         csv_data = None
         for encoding in encodings:
             try:
-                file_like.seek(0)  
-                csv_reader = csv.reader(io.TextIOWrapper(file_like, encoding=encoding))
+                file_like.seek(0)
+                csv_reader = csv.reader(
+                    io.TextIOWrapper(file_like, encoding=encoding))
                 csv_data = [row for row in csv_reader]
-                break  
+                break
             except UnicodeDecodeError:
-                continue 
+                continue
 
         if csv_data is None:
             return {"error": "Unable to decode the file with available encodings"}
 
-        
-        
-        
-        for i in range(1,len(csv_data) - 1):
+        for i in range(1, len(csv_data) - 1):
             res = query_post(
-            "INSERT INTO student (STUDENT_NAME,STUDENT_CODE,STUDENT_MAJOR,STUDENT_FACULTY) VALUES ( %s,%s,%s,%s)", (csv_data[i][1],csv_data[i][0],csv_data[i][2],csv_data[i][3],), 'update')
-        return {"msg": 200 }
+                "INSERT INTO student (STUDENT_NAME,STUDENT_CODE,STUDENT_MAJOR,STUDENT_FACULTY) VALUES ( %s,%s,%s,%s)", (csv_data[i][1], csv_data[i][0], csv_data[i][2], csv_data[i][3],), 'update')
+        return {"msg": 200}
 
     except Exception as e:
         return {"error": str(e)}
